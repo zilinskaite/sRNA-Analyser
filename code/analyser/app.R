@@ -25,9 +25,11 @@ main_page <- tabPanel(
     sidebarPanel(
       width = 3,
       title = "Inputs",
-      fileInput("csv_input", "Select CSV File to Import", accept = ".csv"),
+      fileInput("files", "Select APERO File/Files to Import", accept = ".txt", multiple = TRUE),
       br(),
-      actionButton("run_button", "Run Analysis", icon = icon("play"))
+      actionButton("run_button", "Run Analysis", icon = icon("play")),
+      br(),
+      checkboxInput("header", "Header", TRUE)
     ),
     
     #####MAIN PANEL#####
@@ -35,10 +37,24 @@ main_page <- tabPanel(
       width = 9,
       tabsetPanel(
         tabPanel(
-          title = "Plot",
-          downloadButton('downloadPlot', 'Download Plot'),
-          
-        )
+          title = "Analysis Statistic", 
+          tableOutput("contents")
+        ),
+        tabPanel(
+          title = "GC Plot"
+        ),
+        tabPanel(
+          title = "Tm_GC Plot"
+        ),
+        tabPanel(
+          title = "Length Plot"
+        ),
+        tabPanel(
+          title = "Promoters"
+        ),
+        tabPanel(
+          title = "Terminators"
+        ),
       )
     )
   )
@@ -93,6 +109,16 @@ ui <-navbarPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+  
+  output$contents <- renderTable({
+    file <- input$file1
+   
+    req(file)
+    validate(need(ext == "txt", "Please upload a txt file"))
+    
+    read.csv(file$datapath, header = input$header)
+  })
+  
 }
 
 # Run the application 
