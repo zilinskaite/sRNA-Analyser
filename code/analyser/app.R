@@ -8,6 +8,8 @@ library(data.table)
 library(ggplot2)
 library(svglite)
 library(ggthemr)
+library(DT)
+
 
 ggthemr('solarized')
 
@@ -66,13 +68,15 @@ main_page <- tabPanel(
       width = 3,
       title = "Inputs",
       fileInput("csv_input", "Select CSV File to Import", accept = ".csv", multiple = TRUE),
-      selectInput("num_var_1", "Numerical feature Variable", choices = c(not_sel)),
-      selectInput("num_var_2", "Length", choices = c(not_sel)),
       selectInput("sample_name", "Sample name", choices = c(not_sel)),
+      selectInput("GC_input", "GC", choices = c(not_sel)),
+      selectInput("TmGC_input", "Tm_GC", choices = c(not_sel)),
+      selectInput("len_input", "Length2", choices = c(not_sel)),
       # sliderInput("lenrange", "Range:",
       #             min=0, max=1000, value = c(200,500)),
       br(),
-      actionButton("run_button", "Run Analysis", icon = icon("play"))
+      actionButton("run_button", "Run Analysis", icon = icon("play")),
+      downloadButton('downloadPlot', 'Download Plot')
     ),
     
     #####MAIN PANEL#####
@@ -80,48 +84,50 @@ main_page <- tabPanel(
       width = 9,
       tabsetPanel(
         tabPanel(
-          title = "Plots",
-          downloadButton('downloadPlot', 'Download Plot'),
+          title = "GC Plots",
           fluidRow(
             column(12,
                    fluidRow(
-                     column(6, plotOutput("plot_1")),
-                     column(6, plotOutput("plot_2"))),
-                   fluidRow(
-                     column(6, plotOutput("plot_3")),
-                     column(6, plotOutput("plot_4"))
-                   )
+                     column(6, plotOutput("plot_GC1")),
+                     column(6, plotOutput("plot_GC2")),
+                     column(6, plotOutput("plot_GC3")))
             ))),
         tabPanel(
-          title = "GC Plots"
-        ),
+          title = "Tm_GC Plots",
+          fluidRow(
+            column(12,
+                   fluidRow(
+                     column(6, plotOutput("plot_TmGC1")),
+                     column(6, plotOutput("plot_TmGC2")),
+                     column(6, plotOutput("plot_TmGC3")))
+            ))),
         tabPanel(
-          title = "Tm_GC Plots"
-        ),
-        tabPanel(
-          title = "Length Plots"
-        ),
+          title = "Length Plots",
+          fluidRow(
+            column(12,
+                   fluidRow(
+                     column(6, plotOutput("plot_len1")),
+                     column(6, plotOutput("plot_len2")))
+            ))),
         tabPanel(
           title = "Promoters"
         ),
         tabPanel(
           title = "Terminators"
         ),
-        tabPanel(
-          title = "Statistics",
-          fluidRow(
-            column(width = 4, strong(textOutput("num_var_1_title"))),
-            column(width = 4, strong(textOutput("num_var_2_title")))
-          ),
-          fluidRow(
-            column(width = 4, tableOutput("num_var_1_summary_table")),
-            column(width = 4, tableOutput("num_var_2_summary_table"))
-          ),
-          fluidRow(
-            textOutput("count")
-          ),
+       # tabPanel(
+         # title = "Statistics",
+          #fluidRow(
+          #  column(width = 4, strong(textOutput("num_var_1_title"))),
+          #  column(width = 4, strong(textOutput("num_var_2_title")))
+          #),
+          #fluidRow(
+          #  column(width = 4, tableOutput("num_var_1_summary_table")),
+          #  column(width = 4, tableOutput("num_var_2_summary_table"))
+          #),
+          #  DTOutput("data")
           #downloadButton('downloadData', 'Download')
-        )
+        #)
       )
     )
   )
@@ -130,38 +136,72 @@ main_page <- tabPanel(
 
 #################DRAW PLOTS (VIOLIN, BOXPLOT, HISTOGRAM)
 
-draw_plot_1 <- function(data_input, num_var_1, num_var_2, sample_name){
-  if(num_var_1 != not_sel & sample_name != not_sel){
+###############GC###################
+draw_plot_GC1 <- function(data_input, GC_input, len_input, sample_name){
+  if(GC_input != not_sel & sample_name != not_sel){
     ggplot(data = data_input,
-           aes_string(x = sample_name, y = num_var_1, fill=sample_name)) +
+           aes_string(x = sample_name, y = GC_input, fill=sample_name)) +
       geom_violin()
   }
 }
 
-draw_plot_2 <- function(data_input, num_var_1, num_var_2, sample_name){
-  if(num_var_1 != not_sel & num_var_2 != not_sel & sample_name != not_sel){
+draw_plot_GC2 <- function(data_input, GC_input, len_input, sample_name){
+  if(GC_input != not_sel & len_input != not_sel & sample_name != not_sel){
     ggplot(data = data_input,
-           aes_string(x = num_var_1, y = num_var_2, fill=sample_name )) + 
+           aes_string(x = GC_input, y = len_input, fill=sample_name )) + 
       geom_boxplot()
   }
 }
 
-draw_plot_3 <- function(data_input, num_var_1,  sample_name){ 
-  if(num_var_1 != not_sel ){
+draw_plot_GC3 <- function(data_input, GC_input,  sample_name){ 
+  if(GC_input != not_sel & sample_name != not_sel){
     ggplot(data = data_input,
-           aes_string(x = num_var_1, fill=sample_name)) +
+           aes_string(x = GC_input, fill=sample_name)) +
       geom_histogram()
   }
-}
-draw_plot_4 <- function(data_input, num_var_2, sample_name){ 
-  if(num_var_2 != not_sel){
-    ggplot(data = data_input,
-           aes_string(x = num_var_2, fill=sample_name)) +
-      geom_histogram()
-  }
-  
 }
 
+###############Tm_GC###################
+draw_plot_TmGC1 <- function(data_input, TmGC_input, len_input, sample_name){
+  if(TmGC_input != not_sel & sample_name != not_sel){
+    ggplot(data = data_input,
+           aes_string(x = sample_name, y = TmGC_input, fill=sample_name)) +
+      geom_violin()
+  }
+}
+
+draw_plot_TmGC2 <- function(data_input, TmGC_input, len_input, sample_name){
+  if(TmGC_input != not_sel & len_input != not_sel & sample_name != not_sel){
+    ggplot(data = data_input,
+           aes_string(x = TmGC_input, y = len_input, fill=sample_name )) + 
+      geom_boxplot()
+  }
+}
+
+draw_plot_TmGC3 <- function(data_input, TmGC_input,  sample_name){ 
+  if(TmGC_input != not_sel & sample_name != not_sel){
+    ggplot(data = data_input,
+           aes_string(x = TmGC_input, fill=sample_name)) +
+      geom_histogram()
+  }
+}
+
+#######length#####################
+draw_plot_len1 <- function(data_input,  len_input, sample_name){
+  if(len_input != not_sel & sample_name != not_sel){
+    ggplot(data = data_input,
+           aes_string(x = sample_name, y = len_input, fill=sample_name)) +
+      geom_violin()
+  }
+}
+
+draw_plot_len2 <- function(data_input, len_input, sample_name){ 
+  if(len_input != not_sel){
+    ggplot(data = data_input,
+           aes_string(x = len_input, fill=sample_name)) +
+      geom_histogram()
+  }
+}
 ##############Statiscits tables###########################
 create_num_var_table <- function(data_input, num_var){
   if(num_var != not_sel){
@@ -195,52 +235,80 @@ server <- function(input, output, session){
     rbindlist(lapply(input$csv_input$datapath, fread),
               use.names = TRUE, fill = TRUE)
   })
-  output$count <- renderText(nrow(data_input()))
+  output$data <- renderDT(raw_data, options = list(lengthChange = FALSE))
 
   
   ############select and update inputs###########
   
   observeEvent(data_input(),{
     choices <- c(not_sel, names(data_input()))
-    updateSelectInput(inputId = "num_var_1", choices = choices)
-    updateSelectInput(inputId = "num_var_2", choices = choices)
     updateSelectInput(inputId = "sample_name", choices = choices)
+    updateSelectInput(inputId = "GC_input", choices = choices)
+    updateSelectInput(inputId = "TmGC_input", choices = choices)
+    updateSelectInput(inputId = "len_input", choices = choices)
     #updateSliderInput(session, inputId = "lenrange", min=min(data$length), max=max(data$length))
   })
   
   #########slider#####
-  
-  
-  num_var_1 <- eventReactive(input$run_button,input$num_var_1)
-  num_var_2 <- eventReactive(input$run_button,input$num_var_2)
   sample_name <-eventReactive(input$run_button,input$sample_name)
+  GC_input <- eventReactive(input$run_button,input$GC_input)
+  TmGC_input <- eventReactive(input$run_button,input$TmGC_input)
+  len_input <-eventReactive(input$run_button,input$len_input)
+  
   #lenrange <-eventReactive(input$run_button, input$lenrange)
   
   #### plots output#############
+  ##############GC######################
+  output$plot_GC1 <- renderPlot(.plot_GC1())
   
-  output$plot_1 <- renderPlot(.plot_1())
-  
-  .plot_1 <- reactive(
-    draw_plot_1(data_input(), num_var_1(), num_var_2(), sample_name())
+  .plot_GC1 <- reactive(
+    draw_plot_GC1(data_input(), GC_input(), len_input(), sample_name())
   )
   
-  output$plot_2 <- renderPlot(.plot_2())
+  output$plot_GC2 <- renderPlot(.plot_GC2())
   
-  .plot_2 <- reactive(
-    draw_plot_2(data_input(), num_var_1(), num_var_2(), sample_name())
+  .plot_GC2 <- reactive(
+    draw_plot_GC2(data_input(), GC_input(), len_input(), sample_name())
   )
   
-  output$plot_3 <- renderPlot(.plot_3())
+  output$plot_GC3 <- renderPlot(.plot_GC3())
   
-  .plot_3 <- reactive(
-    draw_plot_3(data_input(), num_var_1(), sample_name())
+  .plot_GC3 <- reactive(
+    draw_plot_GC3(data_input(), GC_input(), sample_name())
   )
   
-  output$plot_4 <- renderPlot(.plot_4())
+  ##############Tm_GC######################
+  output$plot_TmGC1 <- renderPlot(.plot_TmGC1())
   
-  .plot_4 <- reactive(
-    draw_plot_4(data_input(), num_var_2(), sample_name())
+  .plot_TmGC1 <- reactive(
+    draw_plot_TmGC1(data_input(), TmGC_input(), len_input(), sample_name())
   )
+  
+  output$plot_TmGC2 <- renderPlot(.plot_TmGC2())
+  
+  .plot_TmGC2 <- reactive(
+    draw_plot_TmGC2(data_input(), TmGC_input(), len_input(), sample_name())
+  )
+  
+  output$plot_TmGC3 <- renderPlot(.plot_TmGC3())
+  
+  .plot_TmGC3 <- reactive(
+    draw_plot_TmGC3(data_input(), TmGC_input(), sample_name())
+  )
+  
+  ################len###################
+  output$plot_len1 <- renderPlot(.plot_len1())
+  
+  .plot_len1 <- reactive(
+    draw_plot_len1(data_input(), len_input(), sample_name())
+  )
+  
+  output$plot_len2 <- renderPlot(.plot_len2())
+  
+  .plot_len2 <- reactive(
+    draw_plot_len2(data_input(), len_input(), sample_name())
+  )
+
   
   plotInput1 = function(){
     .plot_1()
@@ -254,7 +322,35 @@ server <- function(input, output, session){
   plotInput4 = function(){
     .plot_4()
   }
+  ######################GC#################
+  plotInputGC1 = function(){
+    .plot_GC1()
+  }
+  plotInputGC2 = function(){
+    .plot_GC2()
+  }
+  plotInputGC3 =  function(){
+    .plot_GC3()
+  }
   
+  ######################Tm_GC#################
+  plotInputTmGC1 = function(){
+    .plot_TmGC1()
+  }
+  plotInputTmGC2 = function(){
+    .plot_TmGC2()
+  }
+  plotInputTmGC3 = function(){
+    .plot_TmGC3()
+  }
+  
+  #####################len################
+  plotInputlen1 = function(){
+    .plot_len1()
+  }
+  plotInputlen2 = function(){
+    .plot_len2()
+  }
   
   ############download result files#################
   output$downloadPlot <- downloadHandler(
@@ -269,35 +365,6 @@ server <- function(input, output, session){
     }
   )
   
-  #############statistics#####################################
-  
-  output$num_var_1_title <- renderText(paste("Num Var 1:",num_var_1()))
-  
-  num_var_1_summary_table <- eventReactive(input$run_button,{
-    create_num_var_table(data_input(), num_var_1())
-  })
-  
-  output$num_var_1_summary_table <- renderTable(num_var_1_summary_table(),colnames = FALSE)
-  
-  output$num_var_2_title <- renderText(paste("Num Var 2:",num_var_2()))
-  
-  num_var_2_summary_table <- eventReactive(input$run_button,{
-    create_num_var_table(data_input(), num_var_2())
-  })
-  
-  output$num_var_2_summary_table <- renderTable(num_var_2_summary_table(),colnames = FALSE)
-  
-  
-}
-create_num_var_table <- function(data_input, num_var, sample_name){
-  if(num_var != not_sel){
-    col <- data_input[,get(num_var)]
-    if(length(col)>5000) col_norm<-sample(col,5000) else col_norm<-col
-    norm_test <- shapiro.test(col_norm)
-    statistic <- c("mean", "median")
-    value <- c(round(mean(col),2), round(median(col),2))
-    data.table(statistic, value)
-  }
 }
 
 
