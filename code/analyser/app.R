@@ -65,7 +65,7 @@ main_page <- tabPanel(
     sidebarPanel(
       width = 3,
       title = "Inputs",
-      fileInput("csv_input", "Select CSV File to Import", accept = ".csv"),
+      fileInput("csv_input", "Select CSV File to Import", accept = ".csv", multiple = TRUE),
       selectInput("num_var_1", "Numerical feature Variable", choices = c(not_sel)),
       selectInput("num_var_2", "Length", choices = c(not_sel)),
       selectInput("sample_name", "Sample name", choices = c(not_sel)),
@@ -116,6 +116,9 @@ main_page <- tabPanel(
           fluidRow(
             column(width = 4, tableOutput("num_var_1_summary_table")),
             column(width = 4, tableOutput("num_var_2_summary_table"))
+          ),
+          fluidRow(
+            textOutput("count")
           ),
           #downloadButton('downloadData', 'Download')
         )
@@ -186,11 +189,14 @@ server <- function(input, output, session){
   options(shiny.maxRequestSize=10*1024^2) 
   #####data input, only csv filet########
   data_input <- reactive({
-    ext <- tools::file_ext(input$csv_input$datapath)
-    req(input$csv_input)
-    validate(need(ext == "csv", "Please upload a csv file"))
-    fread(input$csv_input$datapath)
+    #ext <- tools::file_ext(input$csv_input$datapath)
+    #req(input$csv_input)
+    #validate(need(ext == "csv", "Please upload a csv file"))
+    rbindlist(lapply(input$csv_input$datapath, fread),
+              use.names = TRUE, fill = TRUE)
   })
+  output$count <- renderText(nrow(data_input()))
+
   
   ############select and update inputs###########
   
