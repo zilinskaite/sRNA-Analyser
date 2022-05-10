@@ -2,6 +2,14 @@
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
 #
+
+install.packages("shiny")
+install.packages("shinythemes")
+install.packages("data.table")
+install.packages("ggplot2")
+install.packages("svglite")
+install.packages("ggthemr")
+install.packages("DT")
 library(shiny)
 library(shinythemes)
 library(data.table)
