@@ -7,19 +7,18 @@ install.packages("shiny")
 install.packages("shinythemes")
 install.packages("data.table")
 install.packages("ggplot2")
-install.packages("svglite")
-install.packages("ggthemr")
-install.packages("DT")
+install.packages("devtools", dependencies = TRUE, INSTALL_opts = '--no-lock')
+#install.packages("ggthemr", dependencies = TRUE, INSTALL_opts = '--no-lock')
+devtools::install_github('Mikata-Project/ggthemr')
+install.packages("DT", dependencies = TRUE, INSTALL_opts = '--no-lock')
 library(shiny)
 library(shinythemes)
 library(data.table)
 library(ggplot2)
-library(svglite)
 library(ggthemr)
 library(DT)
 
-
-ggthemr('solarized')
+ggthemr("solarized")
 
 not_sel <- "Not Selected"
 seq_length <- "length"
@@ -35,13 +34,13 @@ about_page <- tabPanel(
   h4("Created with R Shiny"),
   h3("How to use this program?"),
   br(),
-  p("On the navigation bar on the page top, you can find 'Analysis' and 'About' tabs. 
+  p("On the navigation bar on the page top, you can find 'Analysis' and 'About' tabs.
   Main application page is under 'Analysis' tab."),
   
   p("In 'Analysis' page you should be able to see button to import file.
-  Important! Imported file needs to be .CSV format file."), 
+  Important! Imported file needs to be .CSV format file."),
   
-  p("When you uploaded .CSV file, you can choose column names from uploaded file."), 
+  p("When you uploaded .CSV file, you can choose column names from uploaded file."),
   strong("You can select:"),
   
   p("* Numeric feature variable"),
@@ -54,7 +53,7 @@ about_page <- tabPanel(
   p("After that, you will be able to download plots from Plot tab on the page right panel."),
   br(),
   h3("What files are acceptable for input?"),
-  p("Application will accept only .CSV file as input."), 
+  p("Application will accept only .CSV file as input."),
   p("Also it will be the best if file contains numeric features variables, sequences length and sample ID."),
   h3("What files will be downloaded to your PC?"),
   p("After analysis is finished, you will be able to download result files."),
@@ -88,7 +87,7 @@ main_page <- tabPanel(
     ),
     
     #####MAIN PANEL#####
-    mainPanel( 
+    mainPanel(
       width = 9,
       tabsetPanel(
         tabPanel(
@@ -123,18 +122,18 @@ main_page <- tabPanel(
         tabPanel(
           title = "Terminators"
         ),
-       # tabPanel(
-         # title = "Statistics",
-          #fluidRow(
-          #  column(width = 4, strong(textOutput("num_var_1_title"))),
-          #  column(width = 4, strong(textOutput("num_var_2_title")))
-          #),
-          #fluidRow(
-          #  column(width = 4, tableOutput("num_var_1_summary_table")),
-          #  column(width = 4, tableOutput("num_var_2_summary_table"))
-          #),
-          #  DTOutput("data")
-          #downloadButton('downloadData', 'Download')
+        # tabPanel(
+        # title = "Statistics",
+        #fluidRow(
+        #  column(width = 4, strong(textOutput("num_var_1_title"))),
+        #  column(width = 4, strong(textOutput("num_var_2_title")))
+        #),
+        #fluidRow(
+        #  column(width = 4, tableOutput("num_var_1_summary_table")),
+        #  column(width = 4, tableOutput("num_var_2_summary_table"))
+        #),
+        #  DTOutput("data")
+        #downloadButton('downloadData', 'Download')
         #)
       )
     )
@@ -156,12 +155,12 @@ draw_plot_GC1 <- function(data_input, GC_input, len_input, sample_name){
 draw_plot_GC2 <- function(data_input, GC_input, len_input, sample_name){
   if(GC_input != not_sel & len_input != not_sel & sample_name != not_sel){
     ggplot(data = data_input,
-           aes_string(x = GC_input, y = len_input, fill=sample_name )) + 
+           aes_string(x = GC_input, y = len_input, fill=sample_name )) +
       geom_boxplot()
   }
 }
 
-draw_plot_GC3 <- function(data_input, GC_input,  sample_name){ 
+draw_plot_GC3 <- function(data_input, GC_input,  sample_name){
   if(GC_input != not_sel & sample_name != not_sel){
     ggplot(data = data_input,
            aes_string(x = GC_input, fill=sample_name)) +
@@ -181,12 +180,12 @@ draw_plot_TmGC1 <- function(data_input, TmGC_input, len_input, sample_name){
 draw_plot_TmGC2 <- function(data_input, TmGC_input, len_input, sample_name){
   if(TmGC_input != not_sel & len_input != not_sel & sample_name != not_sel){
     ggplot(data = data_input,
-           aes_string(x = TmGC_input, y = len_input, fill=sample_name )) + 
+           aes_string(x = TmGC_input, y = len_input, fill=sample_name )) +
       geom_boxplot()
   }
 }
 
-draw_plot_TmGC3 <- function(data_input, TmGC_input,  sample_name){ 
+draw_plot_TmGC3 <- function(data_input, TmGC_input,  sample_name){
   if(TmGC_input != not_sel & sample_name != not_sel){
     ggplot(data = data_input,
            aes_string(x = TmGC_input, fill=sample_name)) +
@@ -203,7 +202,7 @@ draw_plot_len1 <- function(data_input,  len_input, sample_name){
   }
 }
 
-draw_plot_len2 <- function(data_input, len_input, sample_name){ 
+draw_plot_len2 <- function(data_input, len_input, sample_name){
   if(len_input != not_sel){
     ggplot(data = data_input,
            aes_string(x = len_input, fill=sample_name)) +
@@ -221,7 +220,6 @@ create_num_var_table <- function(data_input, num_var){
     data.table(statistic, value)
   }
 }
-
 #####UI navigation############
 
 ui <- navbarPage(
@@ -234,7 +232,7 @@ ui <- navbarPage(
 
 server <- function(input, output, session){
   
-  options(shiny.maxRequestSize=10*1024^2) 
+  options(shiny.maxRequestSize=10*1024^2)
   #####data input, only csv filet########
   data_input <- reactive({
     #ext <- tools::file_ext(input$csv_input$datapath)
@@ -243,8 +241,8 @@ server <- function(input, output, session){
     rbindlist(lapply(input$csv_input$datapath, fread),
               use.names = TRUE, fill = TRUE)
   })
-  output$data <- renderDT(raw_data, options = list(lengthChange = FALSE))
-
+  #  output$data <- renderDT(raw_data, options = list(lengthChange = FALSE))
+  
   
   ############select and update inputs###########
   
@@ -278,7 +276,6 @@ server <- function(input, output, session){
   .plot_GC2 <- reactive(
     draw_plot_GC2(data_input(), GC_input(), len_input(), sample_name())
   )
-  
   output$plot_GC3 <- renderPlot(.plot_GC3())
   
   .plot_GC3 <- reactive(
@@ -303,7 +300,6 @@ server <- function(input, output, session){
   .plot_TmGC3 <- reactive(
     draw_plot_TmGC3(data_input(), TmGC_input(), sample_name())
   )
-  
   ################len###################
   output$plot_len1 <- renderPlot(.plot_len1())
   
@@ -316,7 +312,7 @@ server <- function(input, output, session){
   .plot_len2 <- reactive(
     draw_plot_len2(data_input(), len_input(), sample_name())
   )
-
+  
   
   plotInput1 = function(){
     .plot_1()
@@ -365,10 +361,14 @@ server <- function(input, output, session){
     filename = function() {"Plots.pdf"},
     content = function(file){
       pdf(file)
-      print(.plot_1())
-      print(.plot_2())
-      print(.plot_3())
-      print(.plot_4())
+      print(.plot_GC1)
+      print(.plot_GC2)
+      print(.plot_GC3)
+      print(.plot_TmGC1)
+      print(.plot_TmGC2)
+      print(.plot_TmGC3)
+      print(.plot_len1)
+      print(.plot_len2)
       dev.off()
     }
   )
@@ -377,6 +377,6 @@ server <- function(input, output, session){
 
 
 
-# Run the application 
+# Run the application
 shinyApp(ui = ui, server = server)
 
